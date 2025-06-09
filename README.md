@@ -2,10 +2,6 @@
 
 A modern, fast-loading portfolio site that highlights my skills with a clean, custom design.
 
-## Preview
-
-![Preview]
-
 ## 🛠️ Tech Stack
 
 - [Astro](https://astro.build)
