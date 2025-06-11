@@ -1,0 +1,142 @@
+---
+---
+
+<!-- this is where the sphere will be rendered -->
+<div id="wordSphere" class="w-full h-[300px] relative z-10 mt-6"></div>
+
+<!-- using three.js from a cdn so we can use it directly in the browser -->
+<script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+
+<script>
+// @ts-ignore
+const THREE = window.THREE;
+  function createWordSphere(container) {
+    // sets up the 3d scene
+    const scene = new THREE.Scene();
+    // sets up the camera with perspective view
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      container.clientWidth / container.clientHeight,
+      0.1,
+      1000
+    );
+    // push camera back to view everything
+    camera.position.z = 300;
+
+    // create the renderer and attach it to our container
+    const renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+
+    
+    const words = [
+      { text: "Portfolio", url: "https://github.com/Tony0117Y/Portfolio" },
+      { text: "NBA Team Info", url: "https://github.com/Tony0117Y/NBA-Team-Info" },
+      { text: "Facial Recognition", url: "https://github.com/Tony0117Y/CP468-Facial-Recognition" },
+      { text: "PDF to PPT", url: "https://github.com/Tony0117Y/PDF-TO-PPT" },
+      { text: "Reservation Form", url: "https://github.com/Tony0117Y/Reservation-Form" },
+      { text: "Digital Clock", url: "https://github.com/Tony0117Y/Digital-Clock-with-C" },
+      { text: "Tic Tac Toe", url: "https://github.com/Tony0117Y/Tic-Tac-Toe" },
+      { text: "Snake", url: "https://github.com/Tony0117Y/Snake-Game" },
+    ];
+    // function that turns a word into a 2d texture on a 3d sprite
+    function createTextSprite(message, url) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 28px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(210, 120, 2);
+      sprite.userData = { url }; // store url for click behavior
+      return sprite;
+    }
+
+    const radius = 160; // distance from center to place words
+    const sprites = [];
+
+    // position each word evenly across the surface of a sphere
+    words.forEach((word, i) => {
+      const phi = Math.acos(-1 + (2 * i) / words.length);
+      const theta = Math.sqrt(words.length * Math.PI) * phi;
+
+      const x = radius * Math.cos(theta) * Math.sin(phi);
+      const y = radius * Math.sin(theta) * Math.sin(phi);
+      const z = radius * Math.cos(phi);
+
+      const sprite = createTextSprite(word.text, word.url);
+      sprite.position.set(x, y, z);
+      scene.add(sprite);
+      sprites.push(sprite);
+    });
+    // allow clicking on words to open their link
+    container.addEventListener("click", (e) => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = {
+        x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        y: -((e.clientY - rect.top) / rect.height) * 2 + 1,
+      };
+
+      const raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(sprites);
+
+      if (intersects.length > 0) {
+        const url = intersects[0].object.userData.url;
+        if (url && url !== "#") {
+          window.open(url, "_blank");
+        }
+      }
+    });
+    // store mouse position for hover detection
+    let mouseX = 0;
+    let mouseY = 0;
+
+    window.addEventListener("mousemove", (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    });
+
+    // main loop to rotate the sphere and handle hover effects
+    function animate() {
+        requestAnimationFrame(animate);
+        // convert mouse position to 3d ray space
+        const rect = renderer.domElement.getBoundingClientRect();
+        const mouse = {
+            x: ((mouseX - rect.left) / rect.width) * 2 - 1,
+            y: -((mouseY - rect.top) / rect.height) * 2 + 1,
+        };
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(sprites);
+        // grow word when hovered, shrink when not
+        sprites.forEach(sprite => {
+            if (intersects.find(i => i.object === sprite)) {
+                sprite.scale.set(240, 160, 2); // Enlarged on hover
+            } else {
+                sprite.scale.set(210, 110, 2); // Normal
+            }
+            });
+
+        // speed of rotation
+        scene.rotation.y += 0.0015;
+        renderer.render(scene, camera);
+        }
+
+    animate();
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("wordSphere");
+    if (container) createWordSphere(container);
+  });
+</script>
