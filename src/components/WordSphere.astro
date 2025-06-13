@@ -31,11 +31,11 @@ const THREE = window.THREE;
 
     
     const words = [
-      { text: "Portfolio", url: "https://github.com/Tony0117Y/Portfolio" },
+      { text: "Reservation Form", url: "https://github.com/Tony0117Y/Reservation-Form" },
       { text: "NBA Team Info", url: "https://github.com/Tony0117Y/NBA-Team-Info" },
       { text: "Facial Recognition", url: "https://github.com/Tony0117Y/CP468-Facial-Recognition" },
       { text: "PDF to PPT", url: "https://github.com/Tony0117Y/PDF-TO-PPT" },
-      { text: "Reservation Form", url: "https://github.com/Tony0117Y/Reservation-Form" },
+      { text: "Portfolio", url: "https://github.com/Tony0117Y/Portfolio" },
       { text: "Digital Clock", url: "https://github.com/Tony0117Y/Digital-Clock-with-C" },
       { text: "Tic Tac Toe", url: "https://github.com/Tony0117Y/Tic-Tac-Toe" },
       { text: "Snake", url: "https://github.com/Tony0117Y/Snake-Game" },
@@ -121,7 +121,7 @@ const THREE = window.THREE;
         // grow word when hovered, shrink when not
         sprites.forEach(sprite => {
             if (intersects.find(i => i.object === sprite)) {
-                sprite.scale.set(240, 160, 2); // Enlarged on hover
+                sprite.scale.set(230, 130, 2); // Enlarged on hover
             } else {
                 sprite.scale.set(210, 110, 2); // Normal
             }
@@ -134,7 +134,7 @@ const THREE = window.THREE;
 
     animate();
   }
-
+  // wait until the page is fully loaded, then build the sphere
   window.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("wordSphere");
     if (container) createWordSphere(container);
